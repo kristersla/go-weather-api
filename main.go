@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"golang.org/x/time/rate"
 )
 
 type weatherFetch struct {
@@ -57,22 +58,18 @@ func getCity(city *string) string {
 
 }
 
-var requests = make(map[string]int)
-
-func RateLimitMiddleware() gin.HandlerFunc {
+func RateLimiter() gin.HandlerFunc {
+	limiter := rate.NewLimiter(1, 4)
 	return func(c *gin.Context) {
-		ip := c.ClientIP()
 
-		if requests[ip] >= 10 {
-			c.JSON(429, gin.H{
-				"error": "Too many requests.",
+		if limiter.Allow() {
+			c.Next()
+		} else {
+			c.JSON(http.StatusTooManyRequests, gin.H{
+				"message": "Limite exceed",
 			})
-			c.Abort()
-			return
 		}
 
-		requests[ip]++
-		c.Next()
 	}
 }
 
@@ -83,8 +80,7 @@ func main() {
 	}
 
 	router := gin.Default()
-	router.Use(RateLimitMiddleware())
-
+	router.Use(RateLimiter())
 	router.GET("/weather", func(c *gin.Context) {
 
 		API_KEY := os.Getenv("WEATHER_API_KEY")
