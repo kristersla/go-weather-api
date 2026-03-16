@@ -57,6 +57,25 @@ func getCity(city *string) string {
 
 }
 
+var requests = make(map[string]int)
+
+func RateLimitMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ip := c.ClientIP()
+
+		if requests[ip] >= 10 {
+			c.JSON(429, gin.H{
+				"error": "Too many requests. Try again later.",
+			})
+			c.Abort()
+			return
+		}
+
+		requests[ip]++
+		c.Next()
+	}
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -64,6 +83,7 @@ func main() {
 	}
 
 	router := gin.Default()
+	router.Use(RateLimitMiddleware())
 
 	router.GET("/weather", func(c *gin.Context) {
 
