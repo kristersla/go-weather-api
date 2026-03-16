@@ -65,7 +65,7 @@ func RateLimitMiddleware() gin.HandlerFunc {
 
 		if requests[ip] >= 10 {
 			c.JSON(429, gin.H{
-				"error": "Too many requests. Try again later.",
+				"error": "Too many requests.",
 			})
 			c.Abort()
 			return
