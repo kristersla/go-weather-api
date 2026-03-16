@@ -1,0 +1,11 @@
+# Weather API Proxy (Go + Gin)
+
+A REST API built with Go and the Gin framework that fetches weather data from the public WeatherAPI service and exposes a simplified custom API endpoint.
+
+## Features
+
+- Fetches weather data from an external API
+- Exposes a custom `/weather` endpoint
+- Custom response format
+- Rate limiting middleware
+- Environment variable configuration

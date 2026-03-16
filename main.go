@@ -60,16 +60,16 @@ func getCity(city *string) string {
 
 func RateLimiter() gin.HandlerFunc {
 	limiter := rate.NewLimiter(1, 4)
-	return func(c *gin.Context) {
 
+	return func(c *gin.Context) {
 		if limiter.Allow() {
 			c.Next()
-		} else {
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"message": "Limite exceed",
-			})
+			return
 		}
 
+		c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+			"message": "Limit exceeded",
+		})
 	}
 }
 
